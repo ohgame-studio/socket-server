@@ -1,7 +1,7 @@
 
 const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
+// const http = require('http');
+// const socketIO = require('socket.io');
 
 const app = express();
 // const server = http.createServer(app);
@@ -26,6 +26,6 @@ app.get('/', (req, res) => {
 
 const port = process.env.PORT || 3000;
 
-server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// server.listen(port, () => {
+//     console.log(`Server is running on port ${port}`);
+// });

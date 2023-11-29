@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Example</title>
+</head>
+<body>
+    <input type="text" id="messageInput" placeholder="Enter your message">
+    <button onclick="sendMessage()">Send</button>
+    <ul id="messageList"></ul>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz" crossorigin="anonymous"></script>
+    <script>
+        const socket = io();
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+
+            // Gửi dữ liệu đến server khi người dùng nhấn nút "Send"
+            socket.emit('message', message);
+
+            // Xóa nội dung trong input
+            messageInput.value = '';
+        }
+
+        // Sự kiện được kích hoạt khi nhận được dữ liệu từ server
+        socket.on('message', (message) => {
+            const messageList = document.getElementById('messageList');
+            const listItem = document.createElement('li');
+            listItem.textContent = message;
+            messageList.appendChild(listItem);
+        });
+    </script>
+</body>
+</html>

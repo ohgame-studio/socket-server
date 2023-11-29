@@ -1,22 +1,31 @@
 
-const express = require('express'); 
-  
-const app = express(); 
-const PORT = 3000; 
-  
-app.get('/', (req, res)=>{ 
-    res.status(200); 
-    res.send("Welcome to root URL of Server"); 
-}); 
+const express = require('express');
+const http = require('http');
+const socketIO = require('socket.io');
 
-app.get('/home', (req, res)=>{ 
-    res.status(200); 
-    res.send("Welcome to home of Server"); 
-}); 
-app.listen(PORT, (error) =>{ 
-    if(!error) 
-        console.log("Server is Successfully Running, and App is listening on port "+ PORT) 
-    else 
-        console.log("Error occurred, server can't start", error); 
-    } 
-); 
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+io.on('connection', (socket) => {
+    console.log('Client connected');
+    socket.on('message', (message) => {
+        console.log(`Received: ${message}`);
+
+        io.emit('message',"Server trả về " + message);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+});
+
+const port = process.env.PORT || 3000;
+
+server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});

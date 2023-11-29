@@ -8,7 +8,11 @@ app.get('/', (req, res)=>{
     res.status(200); 
     res.send("Welcome to root URL of Server"); 
 }); 
-  
+
+app.get('/home', (req, res)=>{ 
+    res.status(200); 
+    res.send("Welcome to home of Server"); 
+}); 
 app.listen(PORT, (error) =>{ 
     if(!error) 
         console.log("Server is Successfully Running, and App is listening on port "+ PORT) 

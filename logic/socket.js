@@ -4,7 +4,7 @@ const playerSessions = {};
 function getAllPlayerSessions() {
     return playerSessions
 }
-function getAllPlayerSessionsByUUID(uuid) {
+function getPlayerSessionsByUUID(uuid) {
     return playerSessions[uuid]
 }
 function addPlayerSessions(uuid, websocket) {
@@ -43,5 +43,6 @@ module.exports = {
     addPlayerSessions,
     connectToServer,
     disconnectByUUID,
-    sendJsonToAllPlayer
+    sendJsonToAllPlayer,
+    getPlayerSessionsByUUID
 }

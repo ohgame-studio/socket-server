@@ -15,6 +15,7 @@ const logger = require("./service/log")
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${server.address().port} ${server.address().address}`);
   ServerController.addServer("Test", "localhost", 3000, 0)
+  UserController.addUser("admin","admin")
 });
  
 app.get('/', async (req, res) => {
@@ -63,7 +64,6 @@ app.post('/serverlist', async (req, res) => {
 
 
 
-const playerSessions = {};
 const wss = new WebSocket.Server({ server });
 wss.on('connection', (websocket, request) => {
 
@@ -74,13 +74,13 @@ wss.on('connection', (websocket, request) => {
       if (data.type === 'login') {//{type,token}
         const token = data.token
         let user = await Jwt.getUserByJWT(token)
-        if (!user && user === undefined) {
+        if (!user || user === undefined) {
           websocket.close();
           return
         }
         user = await UserController.addUUIDByUser(user)
         const playerId = user.uuid;
-        if (playerSessions[playerId] && playerSessions[playerId].readyState === WebSocket.OPEN) {
+        if (SocketLogic.getPlayerSessionsByUUID(playerId) && SocketLogic.getPlayerSessionsByUUID(playerId).readyState === WebSocket.OPEN) {
           SocketLogic.disconnectByUUID(playerId)
         }
         SocketLogic.connectToServer(playerId, websocket)
@@ -99,9 +99,12 @@ wss.on('connection', (websocket, request) => {
 
 
 
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('./swagger_output.json')
 
+app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
-
+require('./endpoints')(app)
 
 
 

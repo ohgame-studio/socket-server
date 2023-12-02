@@ -12,6 +12,8 @@
     "node-uuid": "^1.4.8",
     "sequelize": "^6.35.1",
     "socket.io": "^4.7.2",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1",
     "ws": "^8.14.2"
   },

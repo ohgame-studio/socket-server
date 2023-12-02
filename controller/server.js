@@ -28,7 +28,7 @@ async function addServer(servername, url, port ) {
     
     let server_by_name =await findServerByServerName(servername)
     
-    if (server_by_name) {
+    if (!server_by_name) {
         try {
             const new_server = await Servers.create({
                 servername: servername,

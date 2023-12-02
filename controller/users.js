@@ -3,18 +3,25 @@ const logger = require('../service/log');
 const bcrypt = require("../service/bcrypt");
 const UUID = require("uuid")
 async function addUser(username, password) {
-    try {
-        const new_user = await Users.create({
-            username: username,
-            password: password
-        })
-        logger.log(username + " created!")
-        return new_user;
-    } catch (err) {
-        logger.log(err)
+    let user_by_name=await findUserByUsername(username)
+    if (!user_by_name){
+        try {
+            const new_user = await Users.create({
+                username: username,
+                password: password
+            })
+            logger.log(username + " created!")
+            return new_user;
+        } catch (err) {
+            logger.log(err)
+        }
+    }else{
+        logger.log(username + " exist!")
     }
+   
 }
 async function addUUIDByUser(user) {
+    
     try {
         let uuid_create = UUID.v4()
         user.uuid = uuid_create;
@@ -29,6 +36,20 @@ async function findUserById(id) {
     try {
         const user = await Users.findOne({
             where: { id: id },
+        })
+        if (user) {
+            return user;
+        } else {
+            return null;
+        }
+    } catch (err) {
+        logger.error(err);
+    }
+}
+async function findUserByUsername(username) {
+    try {
+        const user = await Users.findOne({
+            where: { username: username },
         })
         if (user) {
             return user;

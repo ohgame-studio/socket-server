@@ -16,9 +16,10 @@
 
     <script>
         const playerId = prompt('Enter your player token:'); // Prompt user for player ID
-
+        var currentURL = window.location.host + window.location.pathname
+console.log(currentURL.replaceAll("/",""));
         // Create a WebSocket connection
-        const socket = new WebSocket('ws://localhost:3000'); // Replace with your WebSocket server URL
+        const socket = new WebSocket('ws://'+currentURL.replaceAll("/","")); // Replace with your WebSocket server URL
 
         // Handle when the WebSocket connection is opened
         socket.addEventListener('open', (event) => {

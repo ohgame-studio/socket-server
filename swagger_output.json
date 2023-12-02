@@ -173,5 +173,8 @@
         "age"
       ]
     }
-  }
+  },
+  "hosts": [
+    "socket.mini.io.vn"
+  ]
 }

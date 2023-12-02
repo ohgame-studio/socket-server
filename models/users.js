@@ -38,7 +38,7 @@ async function syncData() {
                 logger.log('[User] Sync database');
             })
     } catch (err) {
-        logger.error(error);
+        logger.error(err);
     }
 }
 

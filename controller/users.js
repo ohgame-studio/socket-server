@@ -21,7 +21,7 @@ async function addUUIDByUser(user) {
         user.save();
         logger.log(user.username + " update!")
         return user;
-    } catch (err) {
+    } catch (err) { 
         logger.log(err)
     }
 }

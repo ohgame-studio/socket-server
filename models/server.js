@@ -1,41 +1,34 @@
 const Sequelize = require("sequelize");
 const sequelize_db = require("../config/mysql")
 const logger = require('../service/log');
-const User = sequelize_db.define('users', {
+const Server = sequelize_db.define('server', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true,
+        autoIncrement: true, 
     },
-    username: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true,
-    },
-    password: {
+    servername: {
         type: Sequelize.STRING,
         allowNull: false,
     },
-    uuid:{
-        type:Sequelize.STRING,
-        allowNull:true,
+    url: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    port: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
     },
     usertype: {
         type: Sequelize.INTEGER,
-        defaultValue: 0,
+        allowNull: true,
     },
-    
 });
 async function syncData() {
     try {
-        await User.sync({ alter: true })
+        await Server.sync({ alter: true })
             .then(() => {
-                logger.log('[User] Sync database');
+                logger.log('[Server] Sync database');
             })
     } catch (err) {
         logger.error(error);
@@ -44,5 +37,4 @@ async function syncData() {
 
 syncData()
 
-
-module.exports=User;
+module.exports=Server;

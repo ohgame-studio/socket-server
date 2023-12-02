@@ -3,10 +3,20 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid'); // Updated uuid import
 const app = express();
 app.use(express.json());
-const UserController=require("./controller/users")
+const UserController = require("./controller/users")
+const ServerController = require('./controller/server')
+const SocketLogic = require("./logic/socket")
+const Jwt = require("./service/jwt")
+const LoginResonse = require("./response/login")
+const ServerListResponse=require("./response/server_list.js")
+const logger = require("./service/log")
 
-const Jwt=require("./service/jwt")
-const LoginResonse=require("./response/login")
+// Init server
+const server = app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server is running on port ${server.address().port} ${server.address().address}`);
+  ServerController.addServer("Test", "localhost", 3000, 0)
+});
+ 
 app.get('/', async (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -24,56 +34,56 @@ app.post('/login', async (req, res) => {
   let user = await UserController.findUserByUsernamePassword(username, password);
 
   if (user) {
-    const loginResponseInstance =  new LoginResonse(user,await Jwt.createJWTByUser(user));
+    const loginResponseInstance = new LoginResonse(user, await Jwt.createJWTByUser(user));
     res.json(loginResponseInstance);
   } else {
     res.status(401).json({ error: 'Invalid username or password' });
   }
 });
-const server = app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running on port ${server.address().port} ${server.address().address}`);
+app.post('/serverlist', async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({ error: 'Missing request body' });
+  }
+
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Missing token' });
+  }
+
+  let user = await Jwt.getUserByJWT(token)
+  if (user) {
+    let server_list =await ServerController.getServerListByUserType(user.usertype)
+    const serverlist = new ServerListResponse(server_list);
+    res.json(serverlist);
+  } else {
+    res.status(401).json({ error: 'Invalid username or password' });
+  }
 });
+
 
 
 const playerSessions = {};
 const wss = new WebSocket.Server({ server });
 wss.on('connection', (websocket, request) => {
 
-  websocket.on('message', (message) => {
+  websocket.on('message', async (message) => {
     try {
       const data = JSON.parse(message);
 
       if (data.type === 'login') {//{type,token}
-        const token=data.token
-        const user=Jwt.getUserByJWT(token)
-        if (!user){
-          websocket.close() //close when jwt not vaild
+        const token = data.token
+        let user = await Jwt.getUserByJWT(token)
+        if (!user && user === undefined) {
+          websocket.close();
+          return
         }
-        user=UserController.addUUIDByUser(user)
+        user = await UserController.addUUIDByUser(user)
         const playerId = user.uuid;
         if (playerSessions[playerId] && playerSessions[playerId].readyState === WebSocket.OPEN) {
-          // Nếu có, đóng kết nối WebSocket hiện tại
-          playerSessions[playerId].close();
+          SocketLogic.disconnectByUUID(playerId)
         }
-        playerSessions[playerId] = websocket;
-
-        console.log(`Player ${playerId} logged in.`);
-      } else if (data.type === 'logout') {
-        const playerId = data.playerId;
-        delete playerSessions[playerId];
-
-        console.log(`Player ${playerId} logged out.`);
-      } else if (data.type === 'chat') {
-        const playerId = data.playerId;
-        const messageContent = data.message;
-
-        if (playerSessions[playerId]) {
-          Object.values(playerSessions).forEach((playerWebSocket) => {
-            if (playerWebSocket !== websocket) {
-              playerWebSocket.send(JSON.stringify({ type: 'chat', playerId, message: messageContent }));
-            }
-          });
-        }
+        SocketLogic.connectToServer(playerId, websocket)
       }
     } catch (error) {
       console.error('Error processing message:', error.message);
@@ -81,11 +91,7 @@ wss.on('connection', (websocket, request) => {
   });
 
   websocket.on('close', (code, reason) => {
-    const playerId = Object.keys(playerSessions).find((id) => playerSessions[id] === websocket);
-    if (playerId) {
-      delete playerSessions[playerId];
-      console.log(`Player ${playerId} connection closed.`);
-    }
+    SocketLogic.disconnect(websocket)
   });
 });
 

@@ -2,7 +2,7 @@ module.exports = function (app) {
 	
     app.post('/login', (req, res) => {
 	    
-	const userusername = req.body.userusername
+	const username = req.body.username
 	const password = req.body.password
         return res.status(404).send(true)
     })

@@ -15,7 +15,7 @@
     </div>
 
     <script>
-        const playerId = prompt('Enter your player ID:'); // Prompt user for player ID
+        const playerId = prompt('Enter your player token:'); // Prompt user for player ID
 
         // Create a WebSocket connection
         const socket = new WebSocket('ws://localhost:3000'); // Replace with your WebSocket server URL
@@ -25,7 +25,7 @@
             console.log('WebSocket connection opened');
             
             // Send login message to the server
-            const loginMessage = JSON.stringify({ type: 'login', playerId });
+            const loginMessage = JSON.stringify({ type: 'login', token: playerId });
             socket.send(loginMessage);
         });
 

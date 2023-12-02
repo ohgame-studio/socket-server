@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid'); // Updated uuid import
 const app = express();
 app.use(express.json());
 const UserController=require("./controller/users")
+
 const Jwt=require("./service/jwt")
 const LoginResonse=require("./response/login")
 app.get('/', async (req, res) => {
@@ -42,8 +43,14 @@ wss.on('connection', (websocket, request) => {
     try {
       const data = JSON.parse(message);
 
-      if (data.type === 'login') {
-        const playerId = data.playerId;
+      if (data.type === 'login') {//{type,token}
+        const token=data.token
+        const user=Jwt.getUserByJWT(token)
+        if (!user){
+          websocket.close() //close when jwt not vaild
+        }
+        user=UserController.addUUIDByUser(user)
+        const playerId = user.uuid;
         if (playerSessions[playerId] && playerSessions[playerId].readyState === WebSocket.OPEN) {
           // Nếu có, đóng kết nối WebSocket hiện tại
           playerSessions[playerId].close();

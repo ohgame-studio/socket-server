@@ -1,56 +1,84 @@
 const Users = require("../models/users")
 const logger = require('../service/log');
-const bcrypt=require("../service/bcrypt")
+const bcrypt = require("../service/bcrypt");
+const UUID = require("uuid")
 async function addUser(username, password) {
     try {
         const new_user = await Users.create({
             username: username,
             password: password
         })
-        logger.log(username+" created!")
+        logger.log(username + " created!")
         return new_user;
     } catch (err) {
         logger.log(err)
     }
 }
-async function findUserById(id){
-    try{
-        const user=await Users.findOne({
-            where:{id:id},
+async function addUUIDByUser(user) {
+    try {
+        let uuid_create = UUID.v4()
+        user.uuid = uuid_create;
+        user.save();
+        logger.log(user.username + " update!")
+        return user;
+    } catch (err) {
+        logger.log(err)
+    }
+}
+async function findUserById(id) {
+    try {
+        const user = await Users.findOne({
+            where: { id: id },
         })
-        if (user){
+        if (user) {
             return user;
-        }else{
+        } else {
             return null;
         }
-    }catch(err){
+    } catch (err) {
         logger.error(err);
     }
 }
-async function findUserByUsernamePassword(username,password){
-    try{
-        const user=await Users.findOne({
-            where:{username:username},
+async function findUserByUUID(uuid) {
+    try {
+        const user = await Users.findOne({
+            where: { uuid: uuid },
         })
-        if (user && user.password==password){
+        if (user) {
             return user;
-        }else{
+        } else {
             return null;
         }
-    }catch(err){
+    } catch (err) {
         logger.error(err);
     }
 }
-async function compareHashWithPassByUser(hash,user){
-    let isTrue=await bcrypt.compare(user.password,hash)
-    if (isTrue){
+async function findUserByUsernamePassword(username, password) {
+    try {
+        const user = await Users.findOne({
+            where: { username: username },
+        })
+        if (user && user.password == password) {
+            return user;
+        } else {
+            return null;
+        }
+    } catch (err) {
+        logger.error(err);
+    }
+}
+async function compareHashWithPassByUser(hash, user) {
+    let isTrue = await bcrypt.compare(user.password, hash)
+    if (isTrue) {
         return true
     }
     return false
 }
-module.exports={
+module.exports = {
     addUser,
+    addUUIDByUser,
     findUserById,
     compareHashWithPassByUser,
     findUserByUsernamePassword,
+    findUserByUUID,
 }

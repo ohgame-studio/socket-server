@@ -16,27 +16,7 @@ async function createJWTByUser(user) {
         logger.log(err)
     }
 }
-// async function getUserByJWT(jwt_string) {
-//     try {
-//         jwt.verify(jwt_string, process.env.ACCESS_TOKEN_SECRET, async function (err, payload) {
-//             if (err) {
-//                 logger.error(err)
-//                 return
-//             } else {
-//                 let user = await UserController.findUserById(payload.id)
-//                 if ((user)&&(await UserController.compareHashWithPassByUser(payload.hash,user))){    
-//                     return user;
-//                 }
-//                 logger.error("not found user")
-//                 return
-//             }
-//         });
 
-//     } catch (err) {
-//         logger.error(err)
-//         return
-//     }
-// }
 async function getUserByJWT(jwt_string) {
     try {
         const payload = await verifyAsync(jwt_string, process.env.ACCESS_TOKEN_SECRET);
